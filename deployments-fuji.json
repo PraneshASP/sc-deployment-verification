@@ -1,0 +1,14 @@
+[
+  {
+    "address": "0xe5f37B5b6C105b19908AE86d3c97F0b2F3D4F223",
+    "contractName": "Box",
+    "network": "fuji",
+    "timestamp": 1724568047
+  },
+  {
+    "address": "0x9c6eCd3a702A29c3E195E4784a188bac9f67A8f3",
+    "contractName": "BoxV2",
+    "network": "fuji",
+    "timestamp": 1724568047
+  }
+]
