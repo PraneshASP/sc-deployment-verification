@@ -20,13 +20,8 @@ jobs:
           node-version: '18.x'
       - name: Install dependencies
         run: npm ci
-      - name: Determine network from branch name
-        id: network
-        run: |
-          NETWORK=$(echo ${{ github.head_ref }} | sed 's/deploy\/[0-9]*-//')
-          echo "::set-output name=network::$NETWORK"
       - name: Verify deployment bytecode
-        run: npx hardhat verify-deployment --network ${{ steps.network.outputs.network }}
+        run: npx hardhat verify-deployment --network fuji
         env:
           PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
       - name: Comment PR
