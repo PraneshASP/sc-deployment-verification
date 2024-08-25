@@ -14,6 +14,8 @@ async function main() {
     contractName: "Box",
     network: hre.network.name,
     timestamp: Math.floor(Date.now() / 1000),
+    isProxy: true,
+    isImplementation: false
   };
 
   let deployments = [];
@@ -28,3 +30,4 @@ async function main() {
 }
 
 module.exports = main;
+module.exports.tags = ["deploy_box"]
