@@ -33,6 +33,7 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         const implementationAddress = hre.ethers.stripZerosLeft(
           await hre.ethers.provider.getStorage(deployment.address, implementationSlot)
         );
+        console.log("implementationAddress:", implementationAddress)
         const deployedBytecode = await hre.ethers.provider.getCode(implementationAddress);
 
         console.log("--- Creating local Hardhat network...");
@@ -49,7 +50,6 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         const localImplementationAddress = await localHardhat.ethers.stripZerosLeft(
           await localHardhat.ethers.provider.getStorage(localAddress, implementationSlot)
         );
-        console.log("localImplementationAddress:", localImplementationAddress)
         const localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
 
         console.log("--- Comparing bytecodes...");
