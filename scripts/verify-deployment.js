@@ -23,18 +23,21 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
           console.log("  Artifact not found. Compiling contracts...");
           await hre.run("compile");
           
-          // Check again for the artifact after compilation
           if (!fs.existsSync(artifactPath)) {
             throw new Error(`Artifact not found even after compilation: ${artifactPath}`);
           }
         }
+
         console.log("--- Fetching deployed bytecode...");
-        const implementationSlot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'; // storage slot
-        const implementationAddress = hre.ethers.stripZerosLeft(
-          await hre.ethers.provider.getStorage(deployment.address, implementationSlot)
-        );
-        console.log("implementationAddress:", implementationAddress)
-        const deployedBytecode = await hre.ethers.provider.getCode(implementationAddress);
+        let deployedBytecode;
+        const implementationSlot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
+        if (deployment.isProxy) {
+          const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(deployment.address);
+          console.log("implementationAddress:", implementationAddress);
+          deployedBytecode = await hre.ethers.provider.getCode(implementationAddress);
+        } else {
+          deployedBytecode = await hre.ethers.provider.getCode(deployment.address);
+        }
 
         console.log("--- Creating local Hardhat network...");
         const localHardhat = require("hardhat");
@@ -42,21 +45,33 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
 
         console.log("--- Deploying contract locally...");
         const ContractFactory = await localHardhat.ethers.getContractFactory(deployment.contractName);
-        const localContract = await localHardhat.upgrades.deployProxy(ContractFactory, [], { kind: "uups" });
-        await localContract.waitForDeployment();
-        const localAddress = await localContract.getAddress();
+        let localAddress;
+        if (deployment.isProxy) {
+          localContract = await localHardhat.upgrades.deployProxy(ContractFactory, [], { kind: "uups" });
+          localAddress = localContract.getAddress();
+        } else if (deployment.isImplementation) {
+          localContract = await localHardhat.upgrades.deployImplementation(ContractFactory);
+          localAddress = localContract;
+        } else {
+          localContract = await ContractFactory.deploy(...deployment.args);
+        }
 
         console.log("--- Fetching local deployment bytecode...");
-        const localImplementationAddress = await localHardhat.ethers.stripZerosLeft(
-          await localHardhat.ethers.provider.getStorage(localAddress, implementationSlot)
-        );
-        const localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
-
+        let localBytecode;
+        if (deployment.isProxy) {
+          const localImplementationAddress = localHardhat.ethers.getAddress(
+            localHardhat.ethers.dataSlice(await localHardhat.ethers.provider.getStorage(localAddress, implementationSlot), 12)
+          );
+          localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
+        } else {
+          localBytecode = await localHardhat.ethers.provider.getCode(localAddress);
+        }
+        
         console.log("--- Comparing bytecodes...");
-        console.log("--- Deployed bytecode: ", deployedBytecode);
-        console.log("--- Local bytecode: ", localBytecode);
+        // console.log("--- Deployed bytecode: ", deployedBytecode);
+        // console.log("--- Local bytecode: ", localBytecode);
 
-        if (deployedBytecode === localBytecode) {
+        if (hre.ethers.keccak256(deployedBytecode) === hre.ethers.keccak256(localBytecode)) {
           console.log(`✅ ${deployment.contractName} (${deployment.address}): Bytecode verified successfully`);
         } else {
           console.log(`❌ ${deployment.contractName} (${deployment.address}): Bytecode mismatch`);
