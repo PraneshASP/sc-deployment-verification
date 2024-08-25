@@ -27,7 +27,7 @@ jobs:
           echo "::set-output name=network::$NETWORK"
       - name: Verify deployment bytecode
         run: npx hardhat verify-deployment --network ${{ steps.network.outputs.network }}
-        with:
+        env:
           PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
       - name: Comment PR
         uses: actions/github-script@v6
