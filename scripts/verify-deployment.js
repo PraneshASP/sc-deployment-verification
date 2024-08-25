@@ -49,6 +49,7 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         const localImplementationAddress = await localHardhat.ethers.stripZerosLeft(
           await localHardhat.ethers.provider.getStorage(localAddress, implementationSlot)
         );
+        console.log("localImplementationAddress:", localImplementationAddress)
         const localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
 
         console.log("--- Comparing bytecodes...");
