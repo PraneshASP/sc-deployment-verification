@@ -52,6 +52,9 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         const localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
 
         console.log("--- Comparing bytecodes...");
+        console.log("--- Deployed bytecode: ", deployedBytecode);
+        console.log("--- Local bytecode: ", localBytecode);
+
         if (deployedBytecode === localBytecode) {
           console.log(`✅ ${deployment.contractName} (${deployment.address}): Bytecode verified successfully`);
         } else {
