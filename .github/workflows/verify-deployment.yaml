@@ -1,0 +1,41 @@
+name: Verify Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - 'deployments-*.json'
+
+jobs:
+  verify:
+    if: startsWith(github.head_ref, 'deploy/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+      - name: Install dependencies
+        run: npm ci
+      - name: Determine network from branch name
+        id: network
+        run: |
+          NETWORK=$(echo ${{ github.head_ref }} | sed 's/deploy\/[0-9]*-//')
+          echo "::set-output name=network::$NETWORK"
+      - name: Verify deployment bytecode
+        run: npx hardhat verify-deployment --network ${{ steps.network.outputs.network }}
+      - name: Comment PR
+        uses: actions/github-script@v6
+        if: always()
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              body: 'Deployment bytecode verification ${{ job.status }}. Check the Actions tab for more details.'
+            })
