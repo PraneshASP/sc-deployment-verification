@@ -17,9 +17,16 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
       console.log(`\nVerifying ${deployment.contractName} (${deployment.address}):`);
       try {
         console.log("  Reading contract artifact...");
-        const artifactPath = `artifacts/contracts/${deployment.contractName}.sol/${deployment.contractName}.json`;
+        let artifactPath = `artifacts/contracts/${deployment.contractName}.sol/${deployment.contractName}.json`;
+        
         if (!fs.existsSync(artifactPath)) {
-          throw new Error(`Artifact not found: ${artifactPath}`);
+          console.log("  Artifact not found. Compiling contracts...");
+          await hre.run("compile");
+          
+          // Check again for the artifact after compilation
+          if (!fs.existsSync(artifactPath)) {
+            throw new Error(`Artifact not found even after compilation: ${artifactPath}`);
+          }
         }
         console.log("--- Fetching deployed bytecode...");
         const implementationSlot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'; // storage slot
