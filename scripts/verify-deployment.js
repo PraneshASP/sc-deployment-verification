@@ -68,8 +68,8 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         }
         
         console.log("--- Comparing bytecodes...");
-        // console.log("--- Deployed bytecode: ", deployedBytecode);
-        // console.log("--- Local bytecode: ", localBytecode);
+        console.log("--- Deployed bytecode: ", deployedBytecode);
+        console.log("--- Local bytecode: ", localBytecode);
 
         if (hre.ethers.keccak256(deployedBytecode) === hre.ethers.keccak256(localBytecode)) {
           console.log(`✅ ${deployment.contractName} (${deployment.address}): Bytecode verified successfully`);
