@@ -1,8 +1,18 @@
 [
   {
-    "address": "0x44Df6cBCB8a1F4C3D9aF1452667731Ed552e8DAC",
+    "address": "0x5450DC8Ad8EB0dE44e91fECe6586751329EC2290",
     "contractName": "Box",
     "network": "fuji",
-    "timestamp": 1724572111
+    "timestamp": 1724656986,
+    "isProxy": true,
+    "isImplementation": false
+  },
+  {
+    "address": "0x9D5a9Fdea503e22B54C720dA4DAFDa9644C89957",
+    "contractName": "BoxV2",
+    "network": "fuji",
+    "timestamp": 1724657336,
+    "isProxy": false,
+    "isImplementation": true
   }
 ]
