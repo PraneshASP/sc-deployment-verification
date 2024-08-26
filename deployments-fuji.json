@@ -6,5 +6,13 @@
     "timestamp": 1724656986,
     "isProxy": true,
     "isImplementation": false
+  },
+  {
+    "address": "0x9D5a9Fdea503e22B54C720dA4DAFDa9644C89957",
+    "contractName": "BoxV2",
+    "network": "fuji",
+    "timestamp": 1724657336,
+    "isProxy": false,
+    "isImplementation": true
   }
 ]
