@@ -23,7 +23,8 @@ async function main() {
     network: hre.network.name,
     timestamp: Math.floor(Date.now() / 1000),
     isProxy: false,
-    isImplementation: true
+    isImplementation: true,
+    proxyAddress: PROXY_ADDRESS
   };
 
   deployments.push(deployment);
