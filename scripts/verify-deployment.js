@@ -4,15 +4,13 @@ const { task } = require("hardhat/config");
 task("verify-deployment", "Verifies the deployed contract bytecode")
   .setAction(async function (taskArgs, hre) {
     const network = hre.network.name;
-    console.log(`Verifying contract bytecode on ${network}...`);
-
+    console.log(`Verifying contract bytecode on ${network}:${hre.network.config.chainId}...`);
     const deploymentsFile = `deployments-${network}.json`;
     if (!fs.existsSync(deploymentsFile)) {
       console.error(`Deployments file not found: ${deploymentsFile}`);
       return;
     }
     const deployments = JSON.parse(fs.readFileSync(deploymentsFile, "utf8"));
-
     for (const deployment of deployments) {
       console.log(`\nVerifying ${deployment.contractName} (${deployment.address}):`);
       try {
@@ -50,8 +48,14 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
           localContract = await localHardhat.upgrades.deployProxy(ContractFactory, [], { kind: "uups" });
           localAddress = localContract.getAddress();
         } else if (deployment.isImplementation) {
-          localContract = await localHardhat.upgrades.deployImplementation(ContractFactory);
-          localAddress = localContract;
+        console.log("--- Attempting to upgrade...");
+   
+        const proxySigner = await hre.ethers.getSigner(deployment.proxyAddress);
+        const implementation = await localHardhat.ethers.getContractAt(deployment.contractName, deployment.address,proxySigner);
+        console.log("--- Upgrading to implementation...");
+        await implementation.upgradeToAndCall(deployment.address, '0x');
+        console.log("--- Upgrade success");
+        localAddress = await proxyContract.getAddress();
         } else {
           localContract = await ContractFactory.deploy(...deployment.args);
         }
@@ -79,7 +83,7 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         }
       } catch (error) {
         console.log(`❌ ${deployment.contractName} (${deployment.address}): Verification failed`);
-        console.error(`   Error: ${error.message}`);
+        console.error(`   Error: ${error}`);
       }
     }
   });
