@@ -8,9 +8,9 @@ require("./scripts/verify-deployment");
 module.exports = {
   solidity: "0.8.24",
   networks: {
-    fuji: {
-      url: "https://api.avax-test.network/ext/bc/C/rpc",
-      chainId: 43113,
+    amoy: {
+      url: "https://rpc-amoy.polygon.technology",
+      chainId: 80002,
       accounts: [process.env.PRIVATE_KEY],
     }
   },

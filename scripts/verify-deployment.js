@@ -46,16 +46,17 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         let localAddress;
         if (deployment.isProxy) {
           localContract = await localHardhat.upgrades.deployProxy(ContractFactory, [], { kind: "uups" });
-          localAddress = localContract.getAddress();
+          await localContract.waitForDeployment();
+          localAddress = await localContract.getAddress();
         } else if (deployment.isImplementation) {
         console.log("--- Attempting to upgrade...");
    
-        const proxySigner = await hre.ethers.getSigner(deployment.proxyAddress);
-        const implementation = await localHardhat.ethers.getContractAt(deployment.contractName, deployment.address,proxySigner);
         console.log("--- Upgrading to implementation...");
-        await implementation.upgradeToAndCall(deployment.address, '0x');
+        // upgradeProxy
+        await localHardhat.upgrades.upgradeProxy(deployment.proxyAddress, ContractFactory, { kind: "uups" });
+
         console.log("--- Upgrade success");
-        localAddress = await proxyContract.getAddress();
+        localAddress = deployment.address;
         } else {
           localContract = await ContractFactory.deploy(...deployment.args);
         }
@@ -63,17 +64,16 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         console.log("--- Fetching local deployment bytecode...");
         let localBytecode;
         if (deployment.isProxy) {
-          const localImplementationAddress = localHardhat.ethers.getAddress(
-            localHardhat.ethers.dataSlice(await localHardhat.ethers.provider.getStorage(localAddress, implementationSlot), 12)
-          );
+          const localImplementationAddress = await localHardhat.upgrades.erc1967.getImplementationAddress(localAddress);
+
           localBytecode = await localHardhat.ethers.provider.getCode(localImplementationAddress);
         } else {
           localBytecode = await localHardhat.ethers.provider.getCode(localAddress);
         }
         
         console.log("--- Comparing bytecodes...");
-        // console.log("--- Deployed bytecode: ", deployedBytecode);
-        // console.log("--- Local bytecode: ", localBytecode);
+        console.log("--- Deployed bytecode: ", hre.ethers.keccak256(deployedBytecode));
+        console.log("--- Local bytecode: ", hre.ethers.keccak256(localBytecode));
 
         if (hre.ethers.keccak256(deployedBytecode) === hre.ethers.keccak256(localBytecode)) {
           console.log(`✅ ${deployment.contractName} (${deployment.address}): Bytecode verified successfully`);
