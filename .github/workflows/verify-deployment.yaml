@@ -21,6 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Verify deployment bytecode
-        run: npx hardhat verify-deployment --network fuji
+        run: npx hardhat verify-deployment --network amoy
         env:
           PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
