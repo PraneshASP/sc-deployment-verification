@@ -2,7 +2,7 @@
 const { ethers, upgrades } = require("hardhat");
 const fs = require("fs");
 
-const PROXY_ADDRESS = "0xFf4d27a19d6F7EbB6963Fe08Ed1a860C114Da97a";
+const PROXY_ADDRESS = "0x40368666eff4Add443cEf30BBAd2eAcAe5F2cbE8";
 async function main() {
     const proxy = await ethers.getContractAt("UUPSUpgradeable", PROXY_ADDRESS);
     const BoxV2 = await ethers.getContractFactory("BoxV2");
