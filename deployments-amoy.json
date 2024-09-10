@@ -1,11 +1,11 @@
 [
   {
-    "address": "0xcDBb041B6ab6c8eE3BEE40E70f8Dc877A64E2feA",
+    "address": "0xD95A17d40a273f1e4400B7dD01810c877E78b733",
     "contractName": "BoxV2",
     "network": "amoy",
-    "timestamp": 1725941483,
+    "timestamp": 1725948500,
     "isProxy": false,
     "isImplementation": true,
-    "proxyAddress": "0xFf4d27a19d6F7EbB6963Fe08Ed1a860C114Da97a"
+    "proxyAddress": "0x40368666eff4Add443cEf30BBAd2eAcAe5F2cbE8"
   }
 ]

@@ -52,8 +52,10 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
         console.log("--- Attempting to upgrade...");
    
         console.log("--- Upgrading to implementation...");
+        const oldFactory = await localHardhat.ethers.getContractFactory('Box');
+
         // upgradeProxy
-        await localHardhat.upgrades.upgradeProxy(deployment.proxyAddress, ContractFactory, { kind: "uups" });
+        await localHardhat.upgrades.validateUpgrade(oldFactory, ContractFactory, { kind: "uups" });
 
         console.log("--- Upgrade success");
         localAddress = deployment.address;
