@@ -28,7 +28,6 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
 
         console.log("--- Fetching deployed bytecode...");
         let deployedBytecode;
-        const implementationSlot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
         if (deployment.isProxy) {
           const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(deployment.address);
           console.log("implementationAddress:", implementationAddress);
@@ -48,14 +47,9 @@ task("verify-deployment", "Verifies the deployed contract bytecode")
           localContract = await localHardhat.upgrades.deployProxy(ContractFactory, [], { kind: "uups" });
           await localContract.waitForDeployment();
           localAddress = await localContract.getAddress();
-        } else if (deployment.isImplementation) {
-        console.log("--- Attempting to upgrade...");
-   
-        console.log("--- Upgrading to implementation...");
-        const oldFactory = await localHardhat.ethers.getContractFactory('Box');
-
-        // upgradeProxy
-        await localHardhat.upgrades.validateUpgrade(oldFactory, ContractFactory, { kind: "uups" });
+        } else if (deployment.isImplementation) {   
+        console.log("--- Validating Upgrade...");
+        await localHardhat.upgrades.validateUpgrade(deployment.proxyAddress, ContractFactory, { kind: "uups" });
 
         console.log("--- Upgrade success");
         localAddress = deployment.address;
